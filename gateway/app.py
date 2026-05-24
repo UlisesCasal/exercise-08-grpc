@@ -42,6 +42,8 @@ def register_node(body: NodeCreate):
         return _node_dict(resp)
     except grpc.RpcError as exc:
         raise HTTPException(status_code=500, detail=exc.details())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/nodes")
@@ -51,6 +53,8 @@ def list_nodes():
         return [_node_dict(n) for n in resp.nodes]
     except grpc.RpcError as exc:
         raise HTTPException(status_code=500, detail=exc.details())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/nodes/{node_id}")
@@ -62,6 +66,8 @@ def get_node(node_id: str):
         if exc.code() == grpc.StatusCode.NOT_FOUND:
             raise HTTPException(status_code=404, detail="Node not found")
         raise HTTPException(status_code=500, detail=exc.details())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.delete("/nodes/{node_id}", status_code=204)
@@ -72,3 +78,20 @@ def delete_node(node_id: str):
         if exc.code() == grpc.StatusCode.NOT_FOUND:
             raise HTTPException(status_code=404, detail="Node not found")
         raise HTTPException(status_code=500, detail=exc.details())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/register", status_code=201)
+def register_node_alt(body: NodeCreate):
+    return register_node(body)
+
+
+@app.get("/list")
+def list_nodes_alt():
+    return list_nodes()
+
+
+@app.delete("/delete/{node_id}", status_code=204)
+def delete_node_alt(node_id: str):
+    return delete_node(node_id)
