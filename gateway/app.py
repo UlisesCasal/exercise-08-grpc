@@ -11,6 +11,11 @@ GRPC_SERVER = os.getenv("GRPC_SERVER", "localhost:50051")
 app = FastAPI(title="Node Registry Gateway")
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 def _stub() -> node_registry_pb2_grpc.NodeRegistryStub:
     channel = grpc.insecure_channel(GRPC_SERVER)
     return node_registry_pb2_grpc.NodeRegistryStub(channel)
