@@ -1,1 +1,53 @@
-# TODO: 3 services: db, grpc-server (50051), gateway (8080)
+version: "3.8"
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER:     noderegistry
+      POSTGRES_PASSWORD: noderegistry
+      POSTGRES_DB:       noderegistry
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noderegistry"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  grpc-server:
+    build:
+      context: .
+      dockerfile: grpc_server/Dockerfile
+    ports:
+      - "50051:50051"
+    environment:
+      DATABASE_URL: postgresql://noderegistry:noderegistry@db:5432/noderegistry
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import socket; s=socket.create_connection(('localhost',50051),timeout=3); s.close()"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      GRPC_SERVER: grpc-server:50051
+    depends_on:
+      grpc-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8080/nodes')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
