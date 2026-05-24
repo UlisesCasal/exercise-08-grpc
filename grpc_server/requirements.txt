@@ -1,4 +1,5 @@
-grpcio>=1.68
-grpcio-tools>=1.68
+grpcio>=1.80
+grpcio-tools>=1.80
+protobuf>=6.31.1
 sqlalchemy>=2.0
 psycopg2-binary>=2.9

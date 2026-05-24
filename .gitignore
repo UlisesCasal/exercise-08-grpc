@@ -5,3 +5,6 @@ __pycache__/
 venv/
 *.egg-info/
 .terraform/
+# Generated protobuf files (root level, from make proto)
+/node_registry_pb2.py
+/node_registry_pb2_grpc.py
